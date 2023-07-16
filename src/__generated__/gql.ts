@@ -13,7 +13,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-    "\nquery getAnimeList($id: Int, $page: Int, $perPage: Int, $search: String) {\n  Page (page: $page, perPage: $perPage) {\n    pageInfo {\n      total\n      currentPage\n      lastPage\n      hasNextPage\n      perPage\n    }\n    media (id: $id, search: $search) {\n      id\n      title {\n        romaji\n      }\n    }\n  }\n}\n": types.GetAnimeListDocument,
+    "\nquery getAnimeList($id: Int, $page: Int, $perPage: Int, $search: String, $asHtml: Boolean) {\n  Page (page: $page, perPage: $perPage) {\n    pageInfo {\n      total\n      currentPage\n      lastPage\n      hasNextPage\n      perPage\n    }\n    media (id: $id, search: $search) {\n      id\n      title {\n        romaji\n      }\n      description (asHtml: $asHtml)\n      coverImage {\n        extraLarge\n        large\n        medium\n        color\n      }\n    }\n  }\n}\n": types.GetAnimeListDocument,
+    "\nquery getAnimeById($id: Int, $asHtml: Boolean) {\n  Media (id: $id) {\n    id\n    title {\n      romaji\n    }\n    status\n    description (asHtml: $asHtml)\n  }\n}\n": types.GetAnimeByIdDocument,
 };
 
 /**
@@ -33,7 +34,11 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\nquery getAnimeList($id: Int, $page: Int, $perPage: Int, $search: String) {\n  Page (page: $page, perPage: $perPage) {\n    pageInfo {\n      total\n      currentPage\n      lastPage\n      hasNextPage\n      perPage\n    }\n    media (id: $id, search: $search) {\n      id\n      title {\n        romaji\n      }\n    }\n  }\n}\n"): (typeof documents)["\nquery getAnimeList($id: Int, $page: Int, $perPage: Int, $search: String) {\n  Page (page: $page, perPage: $perPage) {\n    pageInfo {\n      total\n      currentPage\n      lastPage\n      hasNextPage\n      perPage\n    }\n    media (id: $id, search: $search) {\n      id\n      title {\n        romaji\n      }\n    }\n  }\n}\n"];
+export function gql(source: "\nquery getAnimeList($id: Int, $page: Int, $perPage: Int, $search: String, $asHtml: Boolean) {\n  Page (page: $page, perPage: $perPage) {\n    pageInfo {\n      total\n      currentPage\n      lastPage\n      hasNextPage\n      perPage\n    }\n    media (id: $id, search: $search) {\n      id\n      title {\n        romaji\n      }\n      description (asHtml: $asHtml)\n      coverImage {\n        extraLarge\n        large\n        medium\n        color\n      }\n    }\n  }\n}\n"): (typeof documents)["\nquery getAnimeList($id: Int, $page: Int, $perPage: Int, $search: String, $asHtml: Boolean) {\n  Page (page: $page, perPage: $perPage) {\n    pageInfo {\n      total\n      currentPage\n      lastPage\n      hasNextPage\n      perPage\n    }\n    media (id: $id, search: $search) {\n      id\n      title {\n        romaji\n      }\n      description (asHtml: $asHtml)\n      coverImage {\n        extraLarge\n        large\n        medium\n        color\n      }\n    }\n  }\n}\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\nquery getAnimeById($id: Int, $asHtml: Boolean) {\n  Media (id: $id) {\n    id\n    title {\n      romaji\n    }\n    status\n    description (asHtml: $asHtml)\n  }\n}\n"): (typeof documents)["\nquery getAnimeById($id: Int, $asHtml: Boolean) {\n  Media (id: $id) {\n    id\n    title {\n      romaji\n    }\n    status\n    description (asHtml: $asHtml)\n  }\n}\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};
