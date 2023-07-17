@@ -36,6 +36,15 @@ query getAnimeById($id: Int, $asHtml: Boolean) {
     }
     status
     description (asHtml: $asHtml)
+    coverImage {
+      extraLarge
+      large
+      medium
+      color
+    }
+    episodes
+    genres
+    duration
   }
 }
 `);

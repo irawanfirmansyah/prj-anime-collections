@@ -1,9 +1,7 @@
 import Head from "next/head";
-import { Inter } from "next/font/google";
 import { AnimeList, Header } from "@/components";
 import { AnimeListPageProvider } from "@/contexts";
-
-const inter = Inter({ subsets: ["latin"] });
+import RootLayout from "@/components/RootLayout/RootLayout";
 
 const AnimeListPage = () => {
   return (
@@ -11,12 +9,12 @@ const AnimeListPage = () => {
       <Head>
         <title>Anime Collections App</title>
       </Head>
-      <main className={`${inter.className}`}>
+      <RootLayout>
         <AnimeListPageProvider>
           <Header />
           <AnimeList />
         </AnimeListPageProvider>
-      </main>
+      </RootLayout>
     </>
   );
 };

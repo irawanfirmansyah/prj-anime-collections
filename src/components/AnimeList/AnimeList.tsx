@@ -5,6 +5,7 @@ import { useQuery } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
 import AnimeListPagination from "./AnimeListPagination";
+import Container from "../Container/Container";
 
 const AnimeList = () => {
   const animeListPageCtx = useAnimeListPageContext();
@@ -138,18 +139,7 @@ const AnimeList = () => {
     return null;
   };
 
-  return (
-    <div
-      css={{
-        maxWidth: "calc(var(--max-width) + 1rem)",
-        marginLeft: "auto",
-        marginRight: "auto",
-        padding: "1rem",
-      }}
-    >
-      {renderContent()}
-    </div>
-  );
+  return <Container>{renderContent()}</Container>;
 };
 
 export default AnimeList;
