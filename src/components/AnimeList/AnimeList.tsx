@@ -1,12 +1,21 @@
 import { COLORS } from "@/constants/colors";
+import { useAnimeListPageContext } from "@/contexts";
 import { GET_ANIME_LIST } from "@/lib/api";
 import { useQuery } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
+import AnimeListPagination from "./AnimeListPagination";
 
 const AnimeList = () => {
+  const animeListPageCtx = useAnimeListPageContext();
+
+  const page = animeListPageCtx?.page || 1;
   const { loading, data } = useQuery(GET_ANIME_LIST, {
-    variables: { page: 1, perPage: 10, asHtml: false },
+    variables: {
+      page,
+      perPage: 10,
+      asHtml: false,
+    },
   });
 
   const renderContent = () => {
@@ -17,6 +26,7 @@ const AnimeList = () => {
         </div>
       );
     }
+
     if (data.Page?.media) {
       return (
         <>
@@ -37,7 +47,6 @@ const AnimeList = () => {
                 borderRadius: ".875rem",
                 fontSize: "1rem",
                 border: "none",
-                // textTransform: "uppercase",
                 fontWeight: 600,
                 cursor: "pointer",
               }}
@@ -122,6 +131,7 @@ const AnimeList = () => {
               </Link>
             ))}
           </div>
+          <AnimeListPagination />
         </>
       );
     }
