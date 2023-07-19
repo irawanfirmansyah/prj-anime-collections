@@ -7,6 +7,7 @@ import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import parse from "html-react-parser";
+import React from "react";
 
 const AnimeDetailPage = () => {
   const router = useRouter();
@@ -15,6 +16,12 @@ const AnimeDetailPage = () => {
     variables: { id: animeId },
     skip: animeId === null,
   });
+
+  React.useEffect(() => {
+    if (router.isReady && !router.query.id) {
+      router.push({ pathname: "/anime/list" });
+    }
+  }, [router]);
 
   const renderContent = () => {
     if (!data || loading) {
@@ -53,6 +60,10 @@ const AnimeDetailPage = () => {
         <div>
           <h3 css={{ marginBottom: "1rem" }}>No. of Episodes</h3>
           <p>{data?.Media?.episodes}</p>
+        </div>
+        <div>
+          <h3 css={{ marginBottom: "1rem" }}>Genres</h3>
+          <p>{data?.Media?.genres?.join(", ")}</p>
         </div>
       </div>
     );
