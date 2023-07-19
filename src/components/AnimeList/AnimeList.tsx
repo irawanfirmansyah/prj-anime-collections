@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
 import AnimeListPagination from "./AnimeListPagination";
-import Container from "../Container/Container";
+import { Container } from "@/components";
 
 const AnimeList = () => {
   const animeListPageCtx = useAnimeListPageContext();
@@ -122,11 +122,6 @@ const AnimeList = () => {
                     width={200}
                     height={200}
                   />
-                  <p
-                    css={{
-                      alignSelf: "start",
-                    }}
-                  ></p>
                 </div>
               </div>
             </Link>
