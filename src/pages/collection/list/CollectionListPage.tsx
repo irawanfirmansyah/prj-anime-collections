@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { CollectionList, Header } from "@/components";
 import RootLayout from "@/components/RootLayout/RootLayout";
-import { CollectionListPageProvider } from "@/contexts";
+import { CollectionProvider } from "@/contexts";
 
 const CollectionListPage = () => {
   return (
@@ -10,10 +10,10 @@ const CollectionListPage = () => {
         <title>Anime Collections App</title>
       </Head>
       <RootLayout>
-        <CollectionListPageProvider>
+        <CollectionProvider>
           <Header />
           <CollectionList />
-        </CollectionListPageProvider>
+        </CollectionProvider>
       </RootLayout>
     </>
   );

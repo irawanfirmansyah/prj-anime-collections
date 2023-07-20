@@ -4,3 +4,4 @@ export { default as CollectionList } from "./CollectionList";
 export { default as Container } from "./Container";
 export { default as ChevronDown } from "./ChevronDown";
 export { default as CloseIcon } from "./CloseIcon";
+export { default as CollectionDetails } from "./CollectionDetails";

@@ -4,7 +4,7 @@ import { Collection } from "@/types";
 import { generateRandomId } from "@/utils";
 import * as React from "react";
 
-const collectionListPageContext = React.createContext<
+const collectionContext = React.createContext<
   | {
       collections: Collection[];
       removeCollection: (id: string) => void;
@@ -16,19 +16,18 @@ const collectionListPageContext = React.createContext<
   | undefined
 >(undefined);
 
-const { Provider } = collectionListPageContext;
+const { Provider } = collectionContext;
 
-export const useCollectionListPageContext = () =>
-  React.useContext(collectionListPageContext);
+export const useCollectionContext = () => React.useContext(collectionContext);
 
-export const CollectionListPageProvider = ({
+export const CollectionProvider = ({
   children,
 }: {
   children?: React.ReactNode;
 }) => {
   const [getLocalStorage, setLocalStorage] = useLocalStorage<{
     collectionList: Array<Collection>;
-  }>("collectionPage");
+  }>("collection");
 
   const [initiated, setInitiated] = React.useState(false);
 

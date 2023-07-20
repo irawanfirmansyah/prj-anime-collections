@@ -1,2 +1,2 @@
 export * from "./AnimeListPageContext";
-export * from "./CollectionListPageContext";
+export * from "./CollectionContext";

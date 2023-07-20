@@ -3,12 +3,12 @@ import { COLORS } from "@/constants/colors";
 import { CloseIcon, Container } from "@/components";
 import Image from "next/image";
 import Link from "next/link";
-import { useCollectionListPageContext } from "@/contexts";
+import { useCollectionContext } from "@/contexts";
 import * as React from "react";
 import { Collection } from "@/types";
 
 const CollectionList = () => {
-  const collectionListPageCtx = useCollectionListPageContext();
+  const collectionCtx = useCollectionContext();
 
   const [
     showConfirmRemoveCollectionModal,
@@ -21,7 +21,7 @@ const CollectionList = () => {
     React.useState("");
   const collectionId = React.useRef<string | null>(null);
 
-  if (!collectionListPageCtx) return null;
+  if (!collectionCtx) return null;
 
   const onSubmitRemoveCollection = () => {
     if (!collectionId.current) return;
@@ -35,7 +35,7 @@ const CollectionList = () => {
     removeCollection,
     updateCollection,
     collectionNames,
-  } = collectionListPageCtx;
+  } = collectionCtx;
 
   const handleClickRemoveCollection =
     (id: string) => (e: React.MouseEvent<HTMLButtonElement>) => {

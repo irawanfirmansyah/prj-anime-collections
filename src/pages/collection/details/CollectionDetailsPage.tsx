@@ -1,19 +1,22 @@
 import Head from "next/head";
-import { AnimeList, Header } from "@/components";
+import { CollectionDetails, Header } from "@/components";
 import RootLayout from "@/components/RootLayout/RootLayout";
+import { CollectionProvider } from "@/contexts";
 
-const CollectionDetails = () => {
+const CollectionDetailsPage = () => {
   return (
     <>
       <Head>
         <title>Anime Collections App</title>
       </Head>
       <RootLayout>
-        <Header />
-        <AnimeList />
+        <CollectionProvider>
+          <Header />
+          <CollectionDetails />
+        </CollectionProvider>
       </RootLayout>
     </>
   );
 };
 
-export default CollectionDetails;
+export default CollectionDetailsPage;
