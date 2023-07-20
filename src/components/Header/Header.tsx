@@ -18,7 +18,7 @@ const Header = () => {
             alignItems: "center",
           }}
         >
-          <h2 css={{ fontSize: "2rem" }}>Anime Collections App</h2>
+          <p css={{ fontSize: "2rem" }}>Anime Collections App</p>
           <nav
             css={{
               marginLeft: "3rem",

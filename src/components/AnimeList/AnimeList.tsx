@@ -24,8 +24,8 @@ const AnimeList = () => {
   const renderContent = () => {
     if (loading && animeList.length === 0) {
       return (
-        <div style={{ padding: "4rem" }}>
-          <h2>Loading . . .</h2>
+        <div>
+          <p css={{ fontSize: "1.125rem" }}>Loading . . .</p>
         </div>
       );
     }
@@ -39,7 +39,7 @@ const AnimeList = () => {
             marginBottom: "2rem",
           }}
         >
-          <h3 css={{ fontSize: "1.5rem" }}>Anime List</h3>
+          <p css={{ fontSize: "1.5rem" }}>Anime List</p>
           <button
             css={{
               backgroundColor: COLORS.black,
@@ -95,13 +95,13 @@ const AnimeList = () => {
                   alignItems: "center",
                   height: "100%",
                   ":hover": {
-                    backgroundColor: COLORS.grey,
+                    boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
                   },
                 }}
               >
-                <h4 css={{ fontSize: "1.25rem", textAlign: "center" }}>
+                <p css={{ fontSize: "1.25rem", textAlign: "center" }}>
                   {m?.title?.romaji}
-                </h4>
+                </p>
                 <div
                   css={{
                     display: "flex",

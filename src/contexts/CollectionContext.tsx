@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Collection } from "@/types";
+import { Collection, LocalStorageCollection } from "@/types";
 import { generateRandomId } from "@/utils";
 import * as React from "react";
 
@@ -8,10 +8,11 @@ const collectionContext = React.createContext<
   | {
       collections: Collection[];
       removeCollection: (id: string) => void;
-      addCollection: (collectionName: string) => void;
+      addCollection: (collectionName: string, animes?: Set<number>) => void;
       collectionNames: Record<string, { id: string }>;
       getCollection: (id: string) => Collection | undefined;
-      updateCollection: (id: string, collectionName: string) => void;
+      updateCollectionName: (id: string, collectionName: string) => void;
+      setCollectionList: (collection: Collection[]) => void;
     }
   | undefined
 >(undefined);
@@ -26,8 +27,8 @@ export const CollectionProvider = ({
   children?: React.ReactNode;
 }) => {
   const [getLocalStorage, setLocalStorage] = useLocalStorage<{
-    collectionList: Array<Collection>;
-  }>("collection");
+    collectionList: Array<LocalStorageCollection>;
+  }>("anime-collection-app:collection");
 
   const [initiated, setInitiated] = React.useState(false);
 
@@ -50,17 +51,20 @@ export const CollectionProvider = ({
   const removeCollection = (id: string) => {
     setCollectionList(collectionList.filter((v) => v.id !== id));
   };
-  const addCollection = (collectionName: string) => {
+  const addCollection = (
+    collectionName: string,
+    animes: Set<number> = new Set<number>(),
+  ) => {
     const id = generateRandomId();
     setCollectionList([
       ...collectionList,
-      { id, animes: [], name: collectionName },
+      { id, animes, name: collectionName },
     ]);
   };
 
   const getCollection = (id: string) => collectionList.find((c) => c.id === id);
 
-  const updateCollection = (id: string, collectionName: string) =>
+  const updateCollectionName = (id: string, collectionName: string) =>
     setCollectionList(
       collectionList.map((v) =>
         v.id === id ? { ...v, name: collectionName } : v,
@@ -69,17 +73,29 @@ export const CollectionProvider = ({
 
   React.useEffect(() => {
     if (!initiated) {
-      setCollectionList(getLocalStorage()?.collectionList || []);
+      const collectionList = getLocalStorage();
+
+      setCollectionList(
+        (getLocalStorage()?.collectionList || []).map((l) => ({
+          ...l,
+          animes: new Set(l.animes),
+        })),
+      );
       setInitiated(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initiated]);
 
   React.useEffect(() => {
-    window.onbeforeunload = () => {
-      setLocalStorage({ collectionList });
-      console.log("test");
-    };
+    if (initiated) {
+      const savedCollectionList: LocalStorageCollection[] =
+        collectionList.map<LocalStorageCollection>((c) => ({
+          ...c,
+          animes: Array.from(c.animes),
+        }));
+
+      setLocalStorage({ collectionList: savedCollectionList });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionList]);
 
@@ -91,11 +107,12 @@ export const CollectionProvider = ({
     <Provider
       value={{
         collections: collectionList,
+        setCollectionList,
         removeCollection,
         addCollection,
         collectionNames,
         getCollection,
-        updateCollection,
+        updateCollectionName,
       }}
     >
       {children}

@@ -51,22 +51,24 @@ query getAnimeById($id: Int, $asHtml: Boolean) {
 
 export const GET_ANIME_LIST_BY_IDS = gql(`
 query getAnimeListByIds($ids: [Int], $asHtml: Boolean) {
-  Media(id_in: $ids){
-    id
-    title {
-      romaji
+  Page {
+    media (id_in: $ids) {
+      id
+      title {
+        romaji
+      }
+      status
+      description (asHtml: $asHtml)
+      coverImage {
+        extraLarge
+        large
+        medium
+        color
+      }
+      episodes
+      genres
+      duration
     }
-    status
-    description (asHtml: $asHtml)
-    coverImage {
-      extraLarge
-      large
-      medium
-      color
-    }
-    episodes
-    genres
-    duration
   }
 }
 `);

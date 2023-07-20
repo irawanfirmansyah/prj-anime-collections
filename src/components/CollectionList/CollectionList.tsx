@@ -1,6 +1,9 @@
-/* eslint-disable no-unused-vars */
 import { COLORS } from "@/constants/colors";
-import { CloseIcon, Container } from "@/components";
+import {
+  AddCollectionModal,
+  Container,
+  RemoveCollectionConfirmationModal,
+} from "@/components";
 import Image from "next/image";
 import Link from "next/link";
 import { useCollectionContext } from "@/contexts";
@@ -33,7 +36,7 @@ const CollectionList = () => {
     getCollection,
     addCollection,
     removeCollection,
-    updateCollection,
+    updateCollectionName,
     collectionNames,
   } = collectionCtx;
 
@@ -70,12 +73,16 @@ const CollectionList = () => {
   }: {
     collectionName: string;
   }) => {
+    if (!collectionName) {
+      setErrorSubmitCollectionMsg("This field is required");
+      return;
+    }
     if (!collectionNameIsValid(collectionName)) {
       setErrorSubmitCollectionMsg("Collection name already exists");
       return;
     }
     if (collectionId.current) {
-      updateCollection(collectionId.current, collectionName);
+      updateCollectionName(collectionId.current, collectionName);
     }
     if (!collectionId.current) {
       addCollection(collectionName);
@@ -140,13 +147,11 @@ const CollectionList = () => {
                 alignItems: "center",
                 height: "100%",
                 ":hover": {
-                  backgroundColor: COLORS.grey,
+                  boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
                 },
               }}
             >
-              <h4 css={{ fontSize: "1.25rem", textAlign: "center" }}>
-                {c.name}
-              </h4>
+              <p css={{ fontSize: "1.25rem", textAlign: "center" }}>{c.name}</p>
               <div
                 css={{
                   display: "flex",
@@ -204,10 +209,10 @@ const CollectionList = () => {
                     padding: ".5rem .875rem",
                     cursor: "pointer",
                     borderRadius: ".75rem",
+                    color: COLORS.white,
                     fontWeight: 600,
                     ":hover": {
                       backgroundColor: COLORS.darkBlue,
-                      color: COLORS.white,
                     },
                   }}
                 >
@@ -231,7 +236,7 @@ const CollectionList = () => {
           marginBottom: "2rem",
         }}
       >
-        <h3 css={{ fontSize: "1.5rem" }}>Collection List</h3>
+        <p css={{ fontSize: "1.5rem" }}>Collection List</p>
         <button
           onClick={handleClickAddCollection}
           css={{
@@ -261,7 +266,7 @@ const CollectionList = () => {
         />
       ) : null}
       {showAddCollectionModal ? (
-        <AddCollectionModalContent
+        <AddCollectionModal
           error={errorSubmitCollectionMsg}
           onClickClose={() => {
             setShowAddCollectionModal(false);
@@ -275,251 +280,6 @@ const CollectionList = () => {
         />
       ) : null}
     </Container>
-  );
-};
-
-const Backdrop = () => (
-  <div
-    css={{
-      position: "fixed",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: COLORS.black,
-      opacity: 0.2,
-      zIndex: 99,
-    }}
-  />
-);
-
-const RemoveCollectionConfirmationModal = ({
-  onClickConfirm,
-  onClickCancel,
-}: {
-  onClickConfirm: () => void;
-  onClickCancel: () => void;
-}) => {
-  return (
-    <>
-      <Backdrop />
-      <div
-        css={{
-          borderRadius: ".875rem",
-          boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
-          backgroundColor: COLORS.white,
-          display: "flex",
-          flexDirection: "column",
-          top: "50%",
-          left: "50%",
-          position: "fixed",
-          zIndex: 100,
-          transform: "translate(-50%, -50%)",
-          padding: "1rem 2rem",
-          maxWidth: "400px",
-          textAlign: "center",
-        }}
-      >
-        <p
-          css={{
-            fontWeight: 600,
-            fontSize: "1.5rem",
-            marginBottom: "1.5rem",
-          }}
-        >
-          Are you sure you want to delete this collection
-        </p>
-        <div
-          css={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            columnGap: ".5rem",
-          }}
-        >
-          <button
-            css={{
-              padding: ".5rem .875rem",
-              backgroundColor: COLORS.white,
-              border: `1px solid ${COLORS.black}`,
-              borderRadius: ".5rem",
-              flex: 1,
-              ":hover": {
-                backgroundColor: COLORS.grey,
-              },
-              fontWeight: 600,
-            }}
-            onClick={onClickCancel}
-          >
-            Cancel
-          </button>
-          <button
-            css={{
-              padding: ".5rem .875rem",
-              backgroundColor: COLORS.blue,
-              ":hover": {
-                backgroundColor: COLORS.darkBlue,
-              },
-              color: COLORS.white,
-              border: `1px solid ${COLORS.darkBlue}`,
-              borderRadius: ".5rem",
-              flex: 1,
-              fontWeight: 600,
-            }}
-            onClick={onClickConfirm}
-          >
-            OK
-          </button>
-        </div>
-      </div>
-    </>
-  );
-};
-
-type AddCollectionModalContentProps = {
-  onSubmit: ({ collectionName }: { collectionName: string }) => void;
-  onClickClose: () => void;
-  error?: string;
-  initialValues?: { collectionName: string };
-};
-
-const AddCollectionModalContent = ({
-  onSubmit,
-  onClickClose,
-  error,
-  initialValues,
-}: AddCollectionModalContentProps) => {
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const collectionName = formData.get("collectionName")
-      ? String(formData.get("collectionName"))
-      : "";
-    onSubmit({ collectionName });
-  };
-
-  return (
-    <>
-      <Backdrop />
-      <div
-        css={{
-          borderRadius: ".875rem",
-          boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
-          backgroundColor: COLORS.white,
-          display: "flex",
-          flexDirection: "column",
-          top: "50%",
-          left: "50%",
-          position: "fixed",
-          zIndex: 100,
-          transform: "translate(-50%, -50%)",
-          padding: "1rem 2rem",
-          maxWidth: "400px",
-          textAlign: "center",
-        }}
-      >
-        <form
-          onSubmit={handleFormSubmit}
-          css={{
-            "& > *:not(:last-child)": {
-              marginBottom: "1rem",
-            },
-          }}
-        >
-          <div
-            css={{
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-              gap: "2rem",
-              marginBottom: "1rem",
-            }}
-          >
-            <p
-              css={{
-                fontWeight: 600,
-                fontSize: "1.5rem",
-              }}
-            >
-              Add a Collection
-            </p>
-            <CloseIcon
-              onClick={() => {
-                onClickClose();
-              }}
-              css={{
-                marginLeft: "auto",
-                cursor: "pointer",
-              }}
-            />
-          </div>
-          <div
-            css={{
-              marginBottom: "2rem",
-              textAlign: "left",
-            }}
-          >
-            <label
-              htmlFor="collectionName"
-              css={{
-                display: "block",
-                marginBottom: ".25rem",
-                fontWeight: 600,
-              }}
-            >
-              Collection Name
-            </label>
-            <input
-              defaultValue={initialValues?.collectionName}
-              id="collectionName"
-              name="collectionName"
-              css={{
-                display: "block",
-                borderRadius: ".25rem",
-                padding: ".25rem .5rem",
-                width: "100%",
-                borderWidth: "1px",
-                borderStyle: "solid",
-                fontSize: "1rem",
-                ...(error && {
-                  outlineColor: COLORS.red,
-                  borderColor: COLORS.red,
-                }),
-              }}
-              type="text"
-              pattern="[a-zA-Z0-9\s]+"
-              title="No special characters allowed"
-            />
-            {error ? (
-              <span css={{ color: COLORS.red, fontSize: ".75rem" }}>
-                {error}
-              </span>
-            ) : null}
-          </div>
-          <button
-            css={{
-              padding: ".5rem .875rem",
-              backgroundColor: COLORS.blue,
-              ":hover": {
-                backgroundColor: COLORS.darkBlue,
-              },
-              color: COLORS.white,
-              border: `1px solid ${COLORS.darkBlue}`,
-              borderRadius: ".5rem",
-              flex: 1,
-              fontWeight: 600,
-              width: "100%",
-            }}
-            type="submit"
-          >
-            Submit
-          </button>
-        </form>
-      </div>
-    </>
   );
 };
 
