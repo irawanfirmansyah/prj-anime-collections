@@ -15,7 +15,7 @@ const AnimeDetails = ({ animeId }: { animeId: number }) => {
 
   const collectionCtx = useCollectionContext();
 
-  const [showCollectionListModal, setShowCollectionListModal] =
+  const [showAddAnimeToCollectionModal, setShowAddAnimeToCollectionModal] =
     React.useState(false);
   const [errorSubmitCollectionMsg, setErrorSubmitCollectionMsg] =
     React.useState("");
@@ -39,7 +39,7 @@ const AnimeDetails = ({ animeId }: { animeId: number }) => {
   };
 
   const closeModal = () => {
-    setShowCollectionListModal(false);
+    setShowAddAnimeToCollectionModal(false);
     setErrorSubmitCollectionMsg("");
   };
 
@@ -66,7 +66,7 @@ const AnimeDetails = ({ animeId }: { animeId: number }) => {
         }
         ctaContent={
           <button
-            onClick={() => setShowCollectionListModal(true)}
+            onClick={() => setShowAddAnimeToCollectionModal(true)}
             css={{
               backgroundColor: COLORS.white,
               color: COLORS.black,
@@ -91,7 +91,7 @@ const AnimeDetails = ({ animeId }: { animeId: number }) => {
   return (
     <Container>
       {renderContent()}
-      {showCollectionListModal ? (
+      {showAddAnimeToCollectionModal ? (
         <AddAnimeToCollectionModal
           onClickClose={closeModal}
           onSubmit={onSubmitAddAnimeToCollectionForm}

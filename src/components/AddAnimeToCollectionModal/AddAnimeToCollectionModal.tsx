@@ -17,6 +17,7 @@ const AddAnimeToCollectionModal = ({
   error,
   initialValues,
   collections,
+  selectedAnimes,
 }: AddAnimeToCollectionModalProps) => {
   const router = useRouter();
   const animeId = Number(router.query.id);
@@ -50,10 +51,22 @@ const AddAnimeToCollectionModal = ({
       };
     }, {}),
   );
+
   const { data } = useQuery(GET_ANIME_BY_ID, {
     variables: { id: animeId },
     skip: !animeId,
   });
+
+  const isChecked = (id: string) => {
+    const split = id.split("-");
+    let currAnimeId = animeId;
+    let currcollectionId = "";
+    if (split.length > 1) {
+      currAnimeId = Number(split[0]);
+      currcollectionId = split[1];
+    }
+    return Boolean(mapCollections[currcollectionId].mapAnimes[currAnimeId]);
+  };
 
   const handleChangeRadio = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRadioInput(e.target.value as AddAnimeToCollectionType);
@@ -71,10 +84,20 @@ const AddAnimeToCollectionModal = ({
     if (radioInput === "ADD_TO_EXISTING") {
       const newCollections = collections.map((c) => {
         const newAnimes = new Set(c.animes);
-        if (mapCollections[c.id].mapAnimes[animeId]) {
-          newAnimes.add(animeId);
+        if (selectedAnimes) {
+          Array.from(selectedAnimes.keys()).forEach((aId) => {
+            if (mapCollections[c.id].mapAnimes[aId]) {
+              newAnimes.add(aId);
+            } else {
+              newAnimes.delete(aId);
+            }
+          });
         } else {
-          newAnimes.delete(animeId);
+          if (mapCollections[c.id].mapAnimes[animeId]) {
+            newAnimes.add(animeId);
+          } else {
+            newAnimes.delete(animeId);
+          }
         }
         return {
           ...c,
@@ -86,53 +109,110 @@ const AddAnimeToCollectionModal = ({
   };
 
   const handleChangeCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const collectionId = e.target.id;
-    const collection = mapCollections[collectionId];
+    const split = e.target.id.split("-");
+    let currAnimeId = animeId;
+    let currcollectionId = "";
+    if (split.length > 1) {
+      currAnimeId = Number(split[0]);
+      currcollectionId = split[1];
+    }
+    const collection = mapCollections[currcollectionId];
     const currCollectionAnimes = collection.mapAnimes;
     let newCollectionNames: Record<number, boolean> = {};
-    if (currCollectionAnimes[animeId]) {
-      const { [animeId]: _, ...restCollectionNames } = currCollectionAnimes;
+    if (currCollectionAnimes[currAnimeId]) {
+      const { [currAnimeId]: _, ...restCollectionNames } = currCollectionAnimes;
       newCollectionNames = { ...restCollectionNames };
     } else {
       newCollectionNames = {
         ...currCollectionAnimes,
-        [animeId]: true,
+        [currAnimeId]: true,
       };
     }
 
     setMapCollections({
       ...mapCollections,
-      [collectionId]: {
+      [currcollectionId]: {
         ...collection,
         mapAnimes: newCollectionNames,
       },
     });
   };
 
-  const renderAddToExistingCollectionContent = () => (
-    <div
-      css={{
-        "& >label": {
-          paddingBottom: "1rem",
-        },
-        marginBottom: "1rem",
-        marginTop: "1rem",
-      }}
-    >
-      {collections.map((c) => (
-        <label css={{ display: "block" }} key={c.id} htmlFor={c.id}>
-          <input
-            id={c.id}
-            name="collectionChecks"
-            type="checkbox"
-            checked={Boolean(mapCollections[c.id].mapAnimes[animeId])}
-            onChange={handleChangeCheckbox}
-          />
-          <span css={{ marginLeft: ".5rem" }}>{c.name}</span>
-        </label>
-      ))}
-    </div>
-  );
+  const renderCollections = (animeId?: number) =>
+    collections.map((c) => (
+      <label
+        css={{ display: "block" }}
+        key={c.id}
+        htmlFor={animeId ? `${animeId}-${c.id}` : c.id}
+      >
+        <input
+          id={animeId ? `${animeId}-${c.id}` : c.id}
+          name="collectionChecks"
+          type="checkbox"
+          checked={isChecked(animeId ? `${animeId}-${c.id}` : c.id)}
+          onChange={handleChangeCheckbox}
+        />
+        <span css={{ marginLeft: ".5rem" }}>{c.name}</span>
+      </label>
+    ));
+
+  const renderAddToExistingCollectionContent = () => {
+    if (collections.length <= 0) {
+      return <div>No collections added yet.</div>;
+    }
+    if (selectedAnimes) {
+      return (
+        <div
+          css={{
+            marginBottom: "1rem",
+          }}
+        >
+          <div
+            css={{
+              display: "flex",
+              flexDirection: "column",
+              rowGap: ".5rem",
+            }}
+          >
+            {Array.from(selectedAnimes.keys()).map((aId) => (
+              <div key={aId}>
+                <p
+                  css={{
+                    marginBottom: ".5rem",
+                  }}
+                >
+                  <span css={{ fontWeight: 600 }}>Anime:</span>{" "}
+                  {selectedAnimes.get(aId)?.name}
+                </p>
+                <div
+                  css={{
+                    paddingLeft: ".5rem",
+                    "& >label": {
+                      paddingBottom: ".25rem",
+                    },
+                  }}
+                >
+                  {renderCollections(aId)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div
+        css={{
+          "& >label": {
+            paddingBottom: ".25rem",
+          },
+          marginBottom: "1rem",
+        }}
+      >
+        {renderCollections(animeId)}
+      </div>
+    );
+  };
 
   const renderAddToNewCollectionContent = () => (
     <>
@@ -188,13 +268,48 @@ const AddAnimeToCollectionModal = ({
           position: "fixed",
           zIndex: 100,
           transform: "translate(-50%, -50%)",
-          padding: "1rem 2rem",
+          maxHeight: "400px",
           textAlign: "center",
+          overflow: "hidden",
         }}
       >
+        <div
+          css={{
+            display: "flex",
+            alignItems: "center",
+            width: "100%",
+            gap: "2rem",
+            position: "sticky",
+            top: 0,
+            padding: "1rem 2rem",
+            backgroundColor: COLORS.white,
+          }}
+        >
+          <p
+            css={{
+              fontWeight: 600,
+              fontSize: "1.5rem",
+              textAlign: "left",
+            }}
+          >
+            {selectedAnimes
+              ? "Bulk add anime to collection"
+              : `Add ${data?.Media?.title?.romaji} to Collection`}
+          </p>
+          <CloseIcon
+            onClick={() => {
+              onClickClose();
+            }}
+            css={{
+              marginLeft: "auto",
+              cursor: "pointer",
+            }}
+          />
+        </div>
         <form
           onSubmit={handleSubmitForm}
           css={{
+            overflow: "auto",
             "& > *:not(:last-child)": {
               marginBottom: "1rem",
             },
@@ -202,36 +317,9 @@ const AddAnimeToCollectionModal = ({
         >
           <div
             css={{
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-              gap: "2rem",
-              marginBottom: "1rem",
-            }}
-          >
-            <p
-              css={{
-                fontWeight: 600,
-                fontSize: "1.5rem",
-                textAlign: "left",
-              }}
-            >
-              Add {data?.Media?.title?.romaji} to Collection
-            </p>
-            <CloseIcon
-              onClick={() => {
-                onClickClose();
-              }}
-              css={{
-                marginLeft: "auto",
-                cursor: "pointer",
-              }}
-            />
-          </div>
-          <div
-            css={{
               marginBottom: "2rem",
               textAlign: "left",
+              padding: "0 2rem",
             }}
           >
             <div css={{ display: "flex", alignItems: "center", gap: "2rem" }}>
@@ -281,24 +369,33 @@ const AddAnimeToCollectionModal = ({
               ? renderAddToExistingCollectionContent()
               : null}
           </div>
-          <button
+          <div
             css={{
-              padding: ".5rem .875rem",
-              backgroundColor: COLORS.blue,
-              ":hover": {
-                backgroundColor: COLORS.darkBlue,
-              },
-              color: COLORS.white,
-              border: `1px solid ${COLORS.darkBlue}`,
-              borderRadius: ".5rem",
-              flex: 1,
-              fontWeight: 600,
-              width: "100%",
+              position: "sticky",
+              bottom: 0,
+              backgroundColor: COLORS.white,
+              padding: "1rem 2rem",
             }}
-            type="submit"
           >
-            Submit
-          </button>
+            <button
+              css={{
+                padding: ".5rem .875rem",
+                backgroundColor: COLORS.blue,
+                ":hover": {
+                  backgroundColor: COLORS.darkBlue,
+                },
+                color: COLORS.white,
+                border: `1px solid ${COLORS.darkBlue}`,
+                borderRadius: ".5rem",
+                flex: 1,
+                fontWeight: 600,
+                width: "100%",
+              }}
+              type="submit"
+            >
+              Submit
+            </button>
+          </div>
         </form>
       </div>
     </>

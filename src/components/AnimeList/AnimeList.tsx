@@ -1,14 +1,17 @@
 import { COLORS } from "@/constants/colors";
-import { useAnimeListPageContext } from "@/contexts";
+import { useAnimeListPageContext, useCollectionContext } from "@/contexts";
 import { GET_ANIME_LIST } from "@/lib/api";
 import { useQuery } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
 import AnimeListPagination from "./AnimeListPagination";
-import { Container } from "@/components";
+import { AddAnimeToCollectionModal, Container } from "@/components";
+import React from "react";
+import { SubmitAnimeToCollectionEvents } from "@/types";
 
 const AnimeList = () => {
   const animeListPageCtx = useAnimeListPageContext();
+  const collectionCtx = useCollectionContext();
 
   const page = animeListPageCtx?.page || 1;
   const { loading, data, previousData } = useQuery(GET_ANIME_LIST, {
@@ -19,7 +22,44 @@ const AnimeList = () => {
     },
   });
 
+  const [showAddAnimeToCollectionModal, setShowAddAnimeToCollectionModal] =
+    React.useState(false);
+  const [errorSubmitCollectionMsg, setErrorSubmitCollectionMsg] =
+    React.useState("");
+  const [selectedAnimes, setSelectedAnimes] = React.useState<
+    Map<number, { name: string }>
+  >(new Map());
+
+  const [selectMode, setSelectMode] = React.useState(false);
+
   const animeList = data?.Page?.media || previousData?.Page?.media || [];
+
+  const closeModal = () => {
+    setShowAddAnimeToCollectionModal(false);
+    setErrorSubmitCollectionMsg("");
+  };
+
+  const onSubmitAddAnimeToCollectionForm = (
+    event: SubmitAnimeToCollectionEvents,
+  ) => {
+    if (!collectionCtx) return;
+    if (event.type === "NEW") {
+      if (collectionCtx.collectionNames[event.collectionName]) {
+        setErrorSubmitCollectionMsg("Collection name already exists");
+        return;
+      }
+      collectionCtx.addCollection(
+        event.collectionName,
+        new Set(Array.from(selectedAnimes.keys())),
+      );
+      closeModal();
+    }
+    if (event.type === "ADD_TO_EXISTING") {
+      collectionCtx.setCollectionList(event.collections);
+      closeModal();
+      setSelectMode(false);
+    }
+  };
 
   const renderContent = () => {
     if (loading && animeList.length === 0) {
@@ -33,27 +73,68 @@ const AnimeList = () => {
       <>
         <div
           css={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
             marginBottom: "2rem",
           }}
         >
-          <p css={{ fontSize: "1.5rem" }}>Anime List</p>
-          <button
+          <div
             css={{
-              backgroundColor: COLORS.black,
-              color: COLORS.white,
-              padding: ".5rem .875rem",
-              borderRadius: ".875rem",
-              fontSize: "1rem",
-              border: "none",
-              fontWeight: 600,
-              cursor: "pointer",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "1rem",
+              marginBottom: "1rem",
             }}
           >
-            Select
-          </button>
+            <p css={{ fontSize: "1.5rem" }}>Anime List</p>
+            <div>
+              {selectMode ? (
+                <button
+                  css={{
+                    backgroundColor: COLORS.black,
+                    color: COLORS.white,
+                    padding: ".5rem .875rem",
+                    borderRadius: ".875rem",
+                    fontSize: "1rem",
+                    border: "none",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    marginRight: ".5rem",
+                  }}
+                  onClick={() => {
+                    if (selectedAnimes.size > 0) {
+                      setShowAddAnimeToCollectionModal(true);
+                    }
+                  }}
+                >
+                  Add to collection
+                </button>
+              ) : null}
+              <button
+                css={{
+                  backgroundColor: COLORS.black,
+                  color: COLORS.white,
+                  padding: ".5rem .875rem",
+                  borderRadius: ".875rem",
+                  fontSize: "1rem",
+                  border: "none",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  setSelectMode((s) => !s);
+                  setSelectedAnimes(new Map());
+                }}
+              >
+                {selectMode ? "Cancel" : "Select"}
+              </button>
+            </div>
+          </div>
+          {selectMode ? (
+            <p css={{ fontSize: "1.5rem", textAlign: "center" }}>
+              Select animes you would like to add
+            </p>
+          ) : null}
         </div>
         <div
           css={{
@@ -75,6 +156,7 @@ const AnimeList = () => {
             <Link
               css={{
                 display: "block",
+                position: "relative",
               }}
               key={m?.id}
               href={{
@@ -83,7 +165,38 @@ const AnimeList = () => {
                   id: m?.id,
                 },
               }}
+              onClick={(e) => {
+                if (selectMode) {
+                  e.preventDefault();
+                  if (!m?.id) return;
+                  let newSelectedAnimes = new Map(selectedAnimes);
+                  if (selectedAnimes.has(m.id)) {
+                    newSelectedAnimes.delete(m.id);
+                  } else {
+                    newSelectedAnimes.set(m.id, {
+                      name: m.title?.romaji || "-",
+                    });
+                  }
+                  setSelectedAnimes(newSelectedAnimes);
+                }
+              }}
             >
+              {selectMode ? (
+                <div css={{ position: "absolute", top: "1rem", left: "1rem" }}>
+                  <input
+                    type="checkbox"
+                    css={{
+                      padding: "100px",
+                    }}
+                    onChange={(e) => {
+                      e.preventDefault();
+                    }}
+                    {...(m?.id && {
+                      checked: selectedAnimes.has(m.id),
+                    })}
+                  />
+                </div>
+              ) : null}
               <div
                 css={{
                   display: "flex",
@@ -132,7 +245,20 @@ const AnimeList = () => {
     );
   };
 
-  return <Container>{renderContent()}</Container>;
+  return (
+    <Container>
+      {renderContent()}
+      {showAddAnimeToCollectionModal ? (
+        <AddAnimeToCollectionModal
+          onClickClose={closeModal}
+          onSubmit={onSubmitAddAnimeToCollectionForm}
+          collections={collectionCtx?.collections || []}
+          error={errorSubmitCollectionMsg}
+          selectedAnimes={selectedAnimes}
+        />
+      ) : null}
+    </Container>
+  );
 };
 
 export default AnimeList;

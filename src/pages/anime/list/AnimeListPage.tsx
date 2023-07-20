@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { AnimeList, Header } from "@/components";
-import { AnimeListPageProvider } from "@/contexts";
+import { AnimeListPageProvider, CollectionProvider } from "@/contexts";
 import RootLayout from "@/components/RootLayout/RootLayout";
 
 const AnimeListPage = () => {
@@ -11,8 +11,10 @@ const AnimeListPage = () => {
       </Head>
       <RootLayout>
         <AnimeListPageProvider>
-          <Header />
-          <AnimeList />
+          <CollectionProvider>
+            <Header />
+            <AnimeList />
+          </CollectionProvider>
         </AnimeListPageProvider>
       </RootLayout>
     </>

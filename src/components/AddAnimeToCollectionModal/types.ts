@@ -7,6 +7,7 @@ export type AddAnimeToCollectionModalProps = {
   error?: string;
   initialValues?: { collectionName: string };
   collections: Collection[];
+  selectedAnimes?: Map<number, { name: string }>;
 };
 
 export type AddAnimeToCollectionType = "ADD_TO_EXISTING" | "NEW";
