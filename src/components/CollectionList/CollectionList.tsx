@@ -4,11 +4,10 @@ import {
   Container,
   RemoveCollectionConfirmationModal,
 } from "@/components";
-import Image from "next/image";
-import Link from "next/link";
 import { useCollectionContext } from "@/contexts";
 import * as React from "react";
 import { Collection } from "@/types";
+import CollectionCard from "../CollectionCard/CollectionCard";
 
 const CollectionList = () => {
   const collectionCtx = useCollectionContext();
@@ -123,104 +122,13 @@ const CollectionList = () => {
           },
         }}
       >
-        {collections.map((c, i) => (
-          <Link
-            css={{
-              display: "block",
-            }}
+        {collections.map((c) => (
+          <CollectionCard
             key={c.id}
-            href={{
-              pathname: "/collection/details",
-              query: {
-                id: c.id,
-              },
-            }}
-          >
-            <div
-              css={{
-                display: "flex",
-                flexDirection: "column",
-                rowGap: "1rem",
-                border: `1px solid ${COLORS.black}`,
-                borderRadius: "1rem",
-                padding: "1rem",
-                alignItems: "center",
-                height: "100%",
-                ":hover": {
-                  boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
-                },
-              }}
-            >
-              <p css={{ fontSize: "1.25rem", textAlign: "center" }}>{c.name}</p>
-              <div
-                css={{
-                  display: "flex",
-                  alignItems: "center",
-                  columnGap: "1rem",
-                  position: "relative",
-                }}
-              >
-                <Image
-                  css={{
-                    alignSelf: "start",
-                  }}
-                  src={
-                    // c.animes.length > 0 && c.animes[0].coverImage?.extraLarge
-                    //   ? c.animes[0].coverImage?.extraLarge
-                    //   :
-                    "https://via.placeholder.com/56x56"
-                  }
-                  alt={`anime-logo-${i}`}
-                  width={200}
-                  height={200}
-                />
-              </div>
-              <div
-                css={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: ".5rem",
-                }}
-              >
-                <button
-                  onClick={handleClickRemoveCollection(c.id)}
-                  css={{
-                    minWidth: "5rem",
-                    border: "none",
-                    backgroundColor: COLORS.red,
-                    padding: ".5rem .875rem",
-                    color: COLORS.white,
-                    cursor: "pointer",
-                    borderRadius: ".75rem",
-                    fontWeight: 600,
-                    ":hover": {
-                      backgroundColor: COLORS.darkRed,
-                    },
-                  }}
-                >
-                  Remove
-                </button>
-                <button
-                  onClick={handleClickEditCollection(c)}
-                  css={{
-                    minWidth: "5rem",
-                    border: "none",
-                    backgroundColor: COLORS.blue,
-                    padding: ".5rem .875rem",
-                    cursor: "pointer",
-                    borderRadius: ".75rem",
-                    color: COLORS.white,
-                    fontWeight: 600,
-                    ":hover": {
-                      backgroundColor: COLORS.darkBlue,
-                    },
-                  }}
-                >
-                  Edit
-                </button>
-              </div>
-            </div>
-          </Link>
+            collection={c}
+            onClickRemove={handleClickRemoveCollection(c.id)}
+            onClickEditCollection={handleClickEditCollection(c)}
+          />
         ))}
       </div>
     );
