@@ -39,7 +39,7 @@ const AnimeListPagination = () => {
           width: "2.75rem",
           height: "2.5rem",
           ":hover": {
-            backgroundColor: COLORS.lightBlue,
+            backgroundColor: COLORS.grey,
           },
         }}
         {...(page - 10 > 0 && {
@@ -60,7 +60,7 @@ const AnimeListPagination = () => {
           width: "2.75rem",
           height: "2.5rem",
           ":hover": {
-            backgroundColor: COLORS.lightBlue,
+            backgroundColor: COLORS.grey,
           },
         }}
         {...(page - 1 > 0 && {
@@ -77,7 +77,7 @@ const AnimeListPagination = () => {
         <button
           key={`page-${curPage}`}
           css={{
-            background: page === curPage ? COLORS.lightBlue : COLORS.white,
+            background: page === curPage ? COLORS.grey : COLORS.white,
             borderRadius: "1rem",
             fontSize: "1rem",
             border: `1px solid ${COLORS.black}`,
@@ -86,7 +86,7 @@ const AnimeListPagination = () => {
             width: "2.75rem",
             height: "2.5rem",
             ":hover": {
-              backgroundColor: COLORS.lightBlue,
+              backgroundColor: COLORS.grey,
             },
           }}
           onClick={() => setPage(curPage)}
@@ -109,7 +109,7 @@ const AnimeListPagination = () => {
           width: "2.75rem",
           height: "2.5rem",
           ":hover": {
-            backgroundColor: COLORS.lightBlue,
+            backgroundColor: COLORS.grey,
           },
         }}
         {...(page < lastPage && {
@@ -133,7 +133,7 @@ const AnimeListPagination = () => {
           width: "2.75rem",
           height: "2.5rem",
           ":hover": {
-            backgroundColor: COLORS.lightBlue,
+            backgroundColor: COLORS.grey,
           },
         }}
         {...(page < lastPage && {

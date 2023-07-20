@@ -95,7 +95,7 @@ const AnimeList = () => {
                   alignItems: "center",
                   height: "100%",
                   ":hover": {
-                    backgroundColor: COLORS.lightBlue,
+                    backgroundColor: COLORS.grey,
                   },
                 }}
               >

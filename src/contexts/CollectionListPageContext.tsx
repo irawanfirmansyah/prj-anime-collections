@@ -9,7 +9,9 @@ const collectionListPageContext = React.createContext<
       collections: Collection[];
       removeCollection: (id: string) => void;
       addCollection: (collectionName: string) => void;
-      collectionNames: Record<string, boolean>;
+      collectionNames: Record<string, { id: string }>;
+      getCollection: (id: string) => Collection | undefined;
+      updateCollection: (id: string, collectionName: string) => void;
     }
   | undefined
 >(undefined);
@@ -34,11 +36,13 @@ export const CollectionListPageProvider = ({
     [],
   );
 
-  const collectionNames = collectionList.reduce<Record<string, boolean>>(
+  const collectionNames = collectionList.reduce<Record<string, { id: string }>>(
     (obj, val) => {
       return {
         ...obj,
-        [val.name]: true,
+        [val.name]: {
+          id: val.id,
+        },
       };
     },
     {},
@@ -54,6 +58,15 @@ export const CollectionListPageProvider = ({
       { id, animes: [], name: collectionName },
     ]);
   };
+
+  const getCollection = (id: string) => collectionList.find((c) => c.id === id);
+
+  const updateCollection = (id: string, collectionName: string) =>
+    setCollectionList(
+      collectionList.map((v) =>
+        v.id === id ? { ...v, name: collectionName } : v,
+      ),
+    );
 
   React.useEffect(() => {
     if (!initiated) {
@@ -82,6 +95,8 @@ export const CollectionListPageProvider = ({
         removeCollection,
         addCollection,
         collectionNames,
+        getCollection,
+        updateCollection,
       }}
     >
       {children}

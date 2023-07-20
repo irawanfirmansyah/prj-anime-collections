@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCollectionListPageContext } from "@/contexts";
 import * as React from "react";
+import { Collection } from "@/types";
 
 const CollectionList = () => {
   const collectionListPageCtx = useCollectionListPageContext();
@@ -24,10 +25,17 @@ const CollectionList = () => {
 
   const onSubmitRemoveCollection = () => {
     if (!collectionId.current) return;
-    collectionListPageCtx.removeCollection(collectionId.current);
+    removeCollection(collectionId.current);
   };
 
-  const { collections } = collectionListPageCtx;
+  const {
+    collections,
+    getCollection,
+    addCollection,
+    removeCollection,
+    updateCollection,
+    collectionNames,
+  } = collectionListPageCtx;
 
   const handleClickRemoveCollection =
     (id: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -36,17 +44,44 @@ const CollectionList = () => {
       setShowConfirmRemoveCollectionModal(true);
     };
 
+  const handleClickEditCollection =
+    (collection: Collection) => (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      collectionId.current = collection.id;
+      setShowAddCollectionModal(true);
+    };
+
+  const collectionNameIsValid = (collectionName: string) => {
+    if (collectionId.current) {
+      const currCollection = getCollection(collectionId.current);
+      if (currCollection?.name === collectionName) {
+        return true;
+      }
+      if (!collectionNames[collectionName]) {
+        return true;
+      }
+      return false;
+    }
+    return !collectionNames[collectionName];
+  };
+
   const handleSubmitAddCollectionForm = ({
     collectionName,
   }: {
     collectionName: string;
   }) => {
-    if (collectionListPageCtx.collectionNames[collectionName]) {
-      console.log(collectionListPageCtx.collectionNames);
+    if (!collectionNameIsValid(collectionName)) {
       setErrorSubmitCollectionMsg("Collection name already exists");
       return;
     }
-    collectionListPageCtx.addCollection(collectionName);
+    if (collectionId.current) {
+      updateCollection(collectionId.current, collectionName);
+    }
+    if (!collectionId.current) {
+      addCollection(collectionName);
+    }
+
+    collectionId.current = null;
     setErrorSubmitCollectionMsg("");
     setShowAddCollectionModal(false);
   };
@@ -55,8 +90,13 @@ const CollectionList = () => {
     setShowAddCollectionModal(true);
   };
 
+  const getCurrCollection = () => {
+    if (!collectionId.current) return undefined;
+    return getCollection(collectionId.current);
+  };
+
   const renderCollectionList = () => {
-    if (collectionListPageCtx.collections.length <= 0) {
+    if (collections.length <= 0) {
       return <div css={{ height: "100%" }}>No Collections. Try add one.</div>;
     }
     return (
@@ -130,23 +170,50 @@ const CollectionList = () => {
                   height={200}
                 />
               </div>
-              <button
-                onClick={handleClickRemoveCollection(c.id)}
+              <div
                 css={{
-                  border: "none",
-                  backgroundColor: COLORS.red,
-                  padding: ".5rem .875rem",
-                  color: COLORS.white,
-                  cursor: "pointer",
-                  borderRadius: ".75rem",
-                  fontWeight: 600,
-                  ":hover": {
-                    backgroundColor: COLORS.darkRed,
-                  },
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: ".5rem",
                 }}
               >
-                Remove Collection
-              </button>
+                <button
+                  onClick={handleClickRemoveCollection(c.id)}
+                  css={{
+                    minWidth: "5rem",
+                    border: "none",
+                    backgroundColor: COLORS.red,
+                    padding: ".5rem .875rem",
+                    color: COLORS.white,
+                    cursor: "pointer",
+                    borderRadius: ".75rem",
+                    fontWeight: 600,
+                    ":hover": {
+                      backgroundColor: COLORS.darkRed,
+                    },
+                  }}
+                >
+                  Remove
+                </button>
+                <button
+                  onClick={handleClickEditCollection(c)}
+                  css={{
+                    minWidth: "5rem",
+                    border: "none",
+                    backgroundColor: COLORS.blue,
+                    padding: ".5rem .875rem",
+                    cursor: "pointer",
+                    borderRadius: ".75rem",
+                    fontWeight: 600,
+                    ":hover": {
+                      backgroundColor: COLORS.darkBlue,
+                      color: COLORS.white,
+                    },
+                  }}
+                >
+                  Edit
+                </button>
+              </div>
             </div>
           </Link>
         ))}
@@ -199,8 +266,12 @@ const CollectionList = () => {
           onClickClose={() => {
             setShowAddCollectionModal(false);
             setErrorSubmitCollectionMsg("");
+            collectionId.current = null;
           }}
           onSubmit={handleSubmitAddCollectionForm}
+          {...(getCurrCollection() && {
+            initialValues: { collectionName: getCurrCollection()?.name || "" },
+          })}
         />
       ) : null}
     </Container>
@@ -312,14 +383,15 @@ type AddCollectionModalContentProps = {
   onSubmit: ({ collectionName }: { collectionName: string }) => void;
   onClickClose: () => void;
   error?: string;
+  initialValues?: { collectionName: string };
 };
 
 const AddCollectionModalContent = ({
   onSubmit,
   onClickClose,
   error,
+  initialValues,
 }: AddCollectionModalContentProps) => {
-  console.log({ error });
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -401,6 +473,7 @@ const AddCollectionModalContent = ({
               Collection Name
             </label>
             <input
+              defaultValue={initialValues?.collectionName}
               id="collectionName"
               name="collectionName"
               css={{

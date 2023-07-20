@@ -27,10 +27,26 @@ const Header = () => {
               gap: "2rem",
             }}
           >
-            <Link css={{ fontSize: "1rem" }} href="/anime/list">
+            <Link
+              css={{
+                fontSize: "1rem",
+                ":hover": {
+                  textDecoration: "underline",
+                },
+              }}
+              href="/anime/list"
+            >
               Animes
             </Link>
-            <Link css={{ fontSize: "1rem" }} href="/collection/list">
+            <Link
+              css={{
+                fontSize: "1rem",
+                ":hover": {
+                  textDecoration: "underline",
+                },
+              }}
+              href="/collection/list"
+            >
               Collections
             </Link>
           </nav>
