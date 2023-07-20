@@ -1,7 +1,6 @@
-import { Media } from "./__generated__/graphql";
 
 export type Collection = {
-  id: number;
+  id: string;
   name: string;
-  animes: Array<Media>;
+  animes: Array<string>;
 };

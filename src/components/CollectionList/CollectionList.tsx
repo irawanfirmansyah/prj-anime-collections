@@ -18,7 +18,7 @@ const CollectionList = () => {
 
   const [errorSubmitCollectionMsg, setErrorSubmitCollectionMsg] =
     React.useState("");
-  const collectionId = React.useRef<number | null>(null);
+  const collectionId = React.useRef<string | null>(null);
 
   if (!collectionListPageCtx) return null;
 
@@ -30,7 +30,7 @@ const CollectionList = () => {
   const { collections } = collectionListPageCtx;
 
   const handleClickRemoveCollection =
-    (id: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
+    (id: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       collectionId.current = id;
       setShowConfirmRemoveCollectionModal(true);
@@ -46,42 +46,20 @@ const CollectionList = () => {
       setErrorSubmitCollectionMsg("Collection name already exists");
       return;
     }
+    collectionListPageCtx.addCollection(collectionName);
     setErrorSubmitCollectionMsg("");
     setShowAddCollectionModal(false);
-    console.log({ collectionName });
   };
 
   const handleClickAddCollection = () => {
     setShowAddCollectionModal(true);
   };
 
-  return (
-    <Container>
-      <div
-        css={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "2rem",
-        }}
-      >
-        <h3 css={{ fontSize: "2rem" }}>Collection List</h3>
-        <button
-          onClick={handleClickAddCollection}
-          css={{
-            backgroundColor: COLORS.black,
-            color: COLORS.white,
-            padding: ".5rem .875rem",
-            borderRadius: ".875rem",
-            fontSize: "1rem",
-            border: "none",
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          Add a Collection
-        </button>
-      </div>
+  const renderCollectionList = () => {
+    if (collectionListPageCtx.collections.length <= 0) {
+      return <div css={{ height: "100%" }}>No Collections. Try add one.</div>;
+    }
+    return (
       <div
         css={{
           display: "grid",
@@ -142,9 +120,10 @@ const CollectionList = () => {
                     alignSelf: "start",
                   }}
                   src={
-                    c.animes.length > 0 && c.animes[0].coverImage?.extraLarge
-                      ? c.animes[0].coverImage?.extraLarge
-                      : "https://via.placeholder.com/56x56"
+                    // c.animes.length > 0 && c.animes[0].coverImage?.extraLarge
+                    //   ? c.animes[0].coverImage?.extraLarge
+                    //   :
+                    "https://via.placeholder.com/56x56"
                   }
                   alt={`anime-logo-${i}`}
                   width={200}
@@ -172,6 +151,37 @@ const CollectionList = () => {
           </Link>
         ))}
       </div>
+    );
+  };
+
+  return (
+    <Container>
+      <div
+        css={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "2rem",
+        }}
+      >
+        <h3 css={{ fontSize: "1.5rem" }}>Collection List</h3>
+        <button
+          onClick={handleClickAddCollection}
+          css={{
+            backgroundColor: COLORS.black,
+            color: COLORS.white,
+            padding: ".5rem .875rem",
+            borderRadius: ".875rem",
+            fontSize: "1rem",
+            border: "none",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          Add a Collection
+        </button>
+      </div>
+      {renderCollectionList()}
       {showConfirmRemoveCollectionModal ? (
         <RemoveCollectionConfirmationModal
           onClickCancel={() => {

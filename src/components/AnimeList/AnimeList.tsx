@@ -39,7 +39,7 @@ const AnimeList = () => {
             marginBottom: "2rem",
           }}
         >
-          <h3 css={{ fontSize: "2rem" }}>Anime List</h3>
+          <h3 css={{ fontSize: "1.5rem" }}>Anime List</h3>
           <button
             css={{
               backgroundColor: COLORS.black,

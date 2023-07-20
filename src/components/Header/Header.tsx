@@ -1,5 +1,6 @@
 import { css } from "@emotion/react";
 import Link from "next/link";
+import { Container } from "@/components";
 
 const Header = () => {
   return (
@@ -10,16 +11,31 @@ const Header = () => {
         top: 0;
       `}
     >
-      <div
-        css={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Link href="/">Anime Collections App</Link>
-        <Link href="/collections">Anime Collections App</Link>
-      </div>
+      <Container>
+        <div
+          css={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <h2 css={{ fontSize: "2rem" }}>Anime Collections App</h2>
+          <nav
+            css={{
+              marginLeft: "3rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "2rem",
+            }}
+          >
+            <Link css={{ fontSize: "1rem" }} href="/anime/list">
+              Animes
+            </Link>
+            <Link css={{ fontSize: "1rem" }} href="/collection/list">
+              Collections
+            </Link>
+          </nav>
+        </div>
+      </Container>
     </header>
   );
 };

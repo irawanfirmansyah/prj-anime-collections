@@ -1,13 +1,14 @@
 /* eslint-disable no-unused-vars */
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Collection } from "@/types";
+import { generateRandomId } from "@/utils";
 import * as React from "react";
 
 const collectionListPageContext = React.createContext<
   | {
       collections: Collection[];
-      removeCollection: (id: number) => void;
-      addCollection: () => void;
+      removeCollection: (id: string) => void;
+      addCollection: (collectionName: string) => void;
       collectionNames: Record<string, boolean>;
     }
   | undefined
@@ -18,29 +19,6 @@ const { Provider } = collectionListPageContext;
 export const useCollectionListPageContext = () =>
   React.useContext(collectionListPageContext);
 
-const MOCK_COLLECTIONS: Array<Collection> = [
-  {
-    id: 1,
-    name: "collection 1",
-    animes: [],
-  },
-  {
-    id: 2,
-    name: "collection 2",
-    animes: [],
-  },
-  {
-    id: 3,
-    name: "collection 3",
-    animes: [],
-  },
-  {
-    id: 4,
-    name: "collection 4",
-    animes: [],
-  },
-];
-
 export const CollectionListPageProvider = ({
   children,
 }: {
@@ -50,8 +28,11 @@ export const CollectionListPageProvider = ({
     collectionList: Array<Collection>;
   }>("collectionPage");
 
-  const [collectionList, setCollectionList] =
-    React.useState<Array<Collection>>(MOCK_COLLECTIONS);
+  const [initiated, setInitiated] = React.useState(false);
+
+  const [collectionList, setCollectionList] = React.useState<Array<Collection>>(
+    [],
+  );
 
   const collectionNames = collectionList.reduce<Record<string, boolean>>(
     (obj, val) => {
@@ -63,21 +44,36 @@ export const CollectionListPageProvider = ({
     {},
   );
 
-  const removeCollection = (id: number) => {
+  const removeCollection = (id: string) => {
     setCollectionList(collectionList.filter((v) => v.id !== id));
   };
-  const addCollection = () => {};
+  const addCollection = (collectionName: string) => {
+    const id = generateRandomId();
+    setCollectionList([
+      ...collectionList,
+      { id, animes: [], name: collectionName },
+    ]);
+  };
 
   React.useEffect(() => {
-    const persistedCollectionPageCtx = getLocalStorage();
-    if (persistedCollectionPageCtx) {
-      setCollectionList(persistedCollectionPageCtx.collectionList);
+    if (!initiated) {
+      setCollectionList(getLocalStorage()?.collectionList || []);
+      setInitiated(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initiated]);
 
-    return () => {
+  React.useEffect(() => {
+    window.onbeforeunload = () => {
       setLocalStorage({ collectionList });
+      console.log("test");
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collectionList]);
+
+  if (!initiated) {
+    return null;
+  }
 
   return (
     <Provider
