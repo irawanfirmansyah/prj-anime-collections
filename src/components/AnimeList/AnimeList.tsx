@@ -53,6 +53,7 @@ const AnimeList = () => {
         new Set(Array.from(selectedAnimes.keys())),
       );
       closeModal();
+      setSelectMode(false);
     }
     if (event.type === "ADD_TO_EXISTING") {
       collectionCtx.setCollectionList(event.collections);
