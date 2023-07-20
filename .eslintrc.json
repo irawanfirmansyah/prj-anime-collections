@@ -3,5 +3,6 @@
     "eslint:recommended",
     "plugin:react-hooks/recommended",
     "next/core-web-vitals"
-  ]
+  ],
+  "ignorePatterns": ["/src/__generated__/**/*.ts"]
 }
